@@ -39,7 +39,7 @@ macro_rules! colored_print {
         $(
             colored_print_impl!($colorize, $c, $fmt, $($args)*);
         )*
-        $crate::color::print($colorize, ::color::ConsoleColor::Reset, "");
+        $crate::color::print($colorize, $crate::color::ConsoleColor::Reset, "");
     )
 }
 
@@ -49,7 +49,7 @@ macro_rules! colored_println {
         $(
             colored_print_impl!($colorize, $c, $fmt, $($args)*);
         )*
-        $crate::color::print($colorize, ::color::ConsoleColor::Reset, "\n");
+        $crate::color::print($colorize, $crate::color::ConsoleColor::Reset, "\n");
     )
 }
 
