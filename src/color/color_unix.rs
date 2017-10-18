@@ -1,6 +1,4 @@
 use std::fmt;
-use std::io::prelude::*;
-use std::io;
 
 use termion::color as cl;
 use termion::color::Fg;
@@ -22,7 +20,7 @@ impl fmt::Display for CC {
 
 const CYAN: Fg<cl::Cyan> = Fg(cl::Cyan);
 const RED: Fg<cl::Red> = Fg(cl::Red);
-const GREEN: Fg<cl::Green> = Fg(cl: Green);
+const GREEN: Fg<cl::Green> = Fg(cl::Green);
 const LIGHT_MAGENTA: Fg<cl::LightMagenta> = Fg(cl::LightMagenta);
 const YELLOW: Fg<cl::Yellow> = Fg(cl::Yellow);
 const LIGHT_BLUE: Fg<cl::LightBlue> = Fg(cl::LightBlue);
