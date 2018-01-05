@@ -7,7 +7,18 @@
 
 ## How to use
 
+add below lines to your Cargo.toml:
+
+```toml
+[dependencies.colored_print]
+git = "https://github.com/statiolake/colored_print.git"
+```
+
+then you can use
+
 ```rust
+extern crate colored_print;
+
 fn main() {
     use colored_print::color::{Yellow, LightBlue};
 
@@ -21,3 +32,4 @@ fn main() {
     println!("this line will be printed with the default color.");
 }
 ```
+(this code snippet is not verified.)
