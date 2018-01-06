@@ -17,10 +17,11 @@ git = "https://github.com/statiolake/colored_print.git"
 then you can use
 
 ```rust
+#[macro_use]
 extern crate colored_print;
 
 fn main() {
-    use colored_print::color::{Yellow, LightBlue};
+    use colored_print::color::ConsoleColor::{Yellow, LightBlue};
 
     // prints *one* line that consists of yellow sentence and light-blue one.
     colored_println! {
@@ -32,4 +33,3 @@ fn main() {
     println!("this line will be printed with the default color.");
 }
 ```
-(this code snippet is not verified.)
