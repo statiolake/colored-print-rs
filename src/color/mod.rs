@@ -25,19 +25,16 @@ pub enum ConsoleColor {
 
 #[macro_export]
 macro_rules! colored_print_impl {
-    ($colorize:expr, $c:expr, $fmt:expr) => (
-        $crate::color::print($colorize, $c, $fmt);
-    );
-    ($colorize:expr, $c:expr, $fmt:expr, $($args:expr)*) => (
-        $crate::color::print($colorize, $c, format!($fmt, $($args)*));
+    ($colorize:expr, $c:expr, $fmt:expr $(,$args:expr)*) => (
+        $crate::color::print($colorize, $c, format!($fmt $(,$args)*));
     )
 }
 
 #[macro_export]
 macro_rules! colored_print {
-    ($colorize:expr; $($c:expr, $fmt:expr, $($args:expr)*);+;) => (
+    ($colorize:expr; $($c:expr, $fmt:expr $(,$args:expr)*);+;) => (
         $(
-            colored_print_impl!($colorize, $c, $fmt, $($args)*);
+            colored_print_impl!($colorize, $c, $fmt $(,$args)*);
         )*
         $crate::color::print($colorize, $crate::color::ConsoleColor::Reset, "");
     )
@@ -45,9 +42,9 @@ macro_rules! colored_print {
 
 #[macro_export]
 macro_rules! colored_println {
-    ($colorize:expr; $($c:expr, $fmt:expr, $($args:expr)*);+;) => (
+    ($colorize:expr; $($c:expr, $fmt:expr $(,$args:expr)*);+;) => (
         $(
-            colored_print_impl!($colorize, $c, $fmt, $($args)*);
+            colored_print_impl!($colorize, $c, $fmt $(,$args)*);
         )*
         $crate::color::print($colorize, $crate::color::ConsoleColor::Reset, "\n");
     )

@@ -13,8 +13,8 @@ mod tests {
     fn it_works() {
         colored_println! {
             true;
-            ::color::ConsoleColor::Yellow, "Hello, world!",;
-            ::color::ConsoleColor::LightBlue, "This is LightBlue!",;
+            ::color::ConsoleColor::Yellow, "Hello, world!";
+            ::color::ConsoleColor::LightBlue, "{} {} {}", "This", "is", "LightBlue!";
         }
         assert_eq!(2 + 2, 4);
     }
