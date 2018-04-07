@@ -17,6 +17,7 @@ pub enum ConsoleColor {
     Cyan,
     Red,
     Green,
+    LightGreen,
     LightMagenta,
     Yellow,
     LightBlue,

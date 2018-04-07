@@ -1,11 +1,11 @@
 #![macro_use]
-use std::fmt;
-use std::io::prelude::*;
-use std::io;
-use winapi;
 use kernel32;
+use std::fmt;
+use std::io;
+use std::io::prelude::*;
+use winapi;
+use winapi::minwindef::{DWORD, WORD};
 use winapi::wincon;
-use winapi::minwindef::{WORD, DWORD};
 
 use super::ConsoleColor as CC;
 
@@ -15,6 +15,7 @@ impl fmt::Display for CC {
             CC::Cyan => write!(f, "{}", CYAN),
             CC::Red => write!(f, "{}", RED),
             CC::Green => write!(f, "{}", GREEN),
+            CC::LightGreen => write!(f, "{}", GREEN),
             CC::LightMagenta => write!(f, "{}", LIGHT_MAGENTA),
             CC::Yellow => write!(f, "{}", YELLOW),
             CC::LightBlue => write!(f, "{}", LIGHT_BLUE),
@@ -39,7 +40,9 @@ impl fmt::Display for ConsoleAttribute {
             } else {
                 kernel32::SetConsoleTextAttribute(
                     handle,
-                    (wincon::FOREGROUND_GREEN | wincon::FOREGROUND_BLUE | wincon::FOREGROUND_RED) as WORD);
+                    (wincon::FOREGROUND_GREEN | wincon::FOREGROUND_BLUE | wincon::FOREGROUND_RED)
+                        as WORD,
+                );
             }
         }
         Ok(())
@@ -49,7 +52,9 @@ impl fmt::Display for ConsoleAttribute {
 const RAW_CYAN: DWORD = wincon::FOREGROUND_BLUE | wincon::FOREGROUND_GREEN;
 const RAW_RED: DWORD = wincon::FOREGROUND_RED;
 const RAW_GREEN: DWORD = wincon::FOREGROUND_GREEN;
-const RAW_LIGHT_MAGENTA: DWORD = wincon::FOREGROUND_BLUE | wincon::FOREGROUND_RED | wincon::FOREGROUND_INTENSITY;
+const RAW_LIGHT_GREEN: DWORD = wincon::FOREGROUND_GREEN | wincon::INTENSITY;
+const RAW_LIGHT_MAGENTA: DWORD =
+    wincon::FOREGROUND_BLUE | wincon::FOREGROUND_RED | wincon::FOREGROUND_INTENSITY;
 const RAW_YELLOW: DWORD = wincon::FOREGROUND_GREEN | wincon::FOREGROUND_RED;
 const RAW_LIGHT_BLUE: DWORD = wincon::FOREGROUND_BLUE | wincon::FOREGROUND_INTENSITY;
 
