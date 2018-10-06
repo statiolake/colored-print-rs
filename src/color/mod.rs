@@ -13,6 +13,7 @@ pub use self::color_unix::*;
 #[cfg(windows)]
 pub use self::color_windows::*;
 
+#[derive(Debug, Copy, Clone)]
 pub enum ConsoleColor {
     Cyan,
     Red,
