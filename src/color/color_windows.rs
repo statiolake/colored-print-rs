@@ -1,51 +1,11 @@
-use kernel32;
-use winapi::shared::minwindef::{DWORD, WORD};
-use winapi::um::{winbase, wincon};
+use winapi::shared::minwindef::WORD;
+use winapi::um::winnt::HANDLE;
+use winapi::um::{processenv, winbase, wincon};
 
-use std::fmt;
 use std::io;
 use std::io::prelude::*;
 
-use super::ConsoleColor as CC;
-
-impl fmt::Display for CC {
-    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        match *self {
-            CC::Cyan => write!(f, "{}", CYAN),
-            CC::Red => write!(f, "{}", RED),
-            CC::Green => write!(f, "{}", GREEN),
-            CC::LightGreen => write!(f, "{}", LIGHT_GREEN),
-            CC::LightMagenta => write!(f, "{}", LIGHT_MAGENTA),
-            CC::Yellow => write!(f, "{}", YELLOW),
-            CC::LightBlue => write!(f, "{}", LIGHT_BLUE),
-            CC::Reset => write!(f, "{}", RESET),
-        }
-    }
-}
-
-pub enum ConsoleAttribute {
-    Attr(DWORD),
-    Reset,
-}
-
-impl fmt::Display for ConsoleAttribute {
-    fn fmt(&self, _: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        io::stdout().flush().unwrap();
-        io::stderr().flush().unwrap();
-        unsafe {
-            let handle = kernel32::GetStdHandle(winbase::STD_OUTPUT_HANDLE);
-            match *self {
-                ConsoleAttribute::Attr(attr) => {
-                    kernel32::SetConsoleTextAttribute(handle, attr as WORD);
-                }
-                _ => {
-                    kernel32::SetConsoleTextAttribute(handle, RAW_RESET as WORD);
-                }
-            }
-        }
-        Ok(())
-    }
-}
+use super::{ConsoleColor as CC, Stream};
 
 const RAW_CYAN: WORD = wincon::FOREGROUND_BLUE | wincon::FOREGROUND_GREEN;
 const RAW_RED: WORD = wincon::FOREGROUND_RED;
@@ -57,11 +17,45 @@ const RAW_YELLOW: WORD = wincon::FOREGROUND_GREEN | wincon::FOREGROUND_RED;
 const RAW_LIGHT_BLUE: WORD = wincon::FOREGROUND_BLUE | wincon::FOREGROUND_INTENSITY;
 const RAW_RESET: WORD = wincon::FOREGROUND_GREEN | wincon::FOREGROUND_BLUE | wincon::FOREGROUND_RED;
 
-const CYAN: ConsoleAttribute = ConsoleAttribute::Attr(RAW_CYAN as DWORD);
-const RED: ConsoleAttribute = ConsoleAttribute::Attr(RAW_RED as DWORD);
-const GREEN: ConsoleAttribute = ConsoleAttribute::Attr(RAW_GREEN as DWORD);
-const LIGHT_GREEN: ConsoleAttribute = ConsoleAttribute::Attr(RAW_LIGHT_GREEN as DWORD);
-const LIGHT_MAGENTA: ConsoleAttribute = ConsoleAttribute::Attr(RAW_LIGHT_MAGENTA as DWORD);
-const YELLOW: ConsoleAttribute = ConsoleAttribute::Attr(RAW_YELLOW as DWORD);
-const LIGHT_BLUE: ConsoleAttribute = ConsoleAttribute::Attr(RAW_LIGHT_BLUE as DWORD);
-const RESET: ConsoleAttribute = ConsoleAttribute::Reset;
+pub fn print(colorize: bool, stream: Stream, color: CC, body: &str) {
+    io::stdout().flush().unwrap();
+    io::stderr().flush().unwrap();
+    let handle = get_stream_handle(stream);
+    set_console_color(colorize, handle, color);
+    match stream {
+        Stream::Stdout => write!(io::stdout(), "{}", body).unwrap(),
+        Stream::Stderr => write!(io::stderr(), "{}", body).unwrap(),
+    }
+    io::stdout().flush().unwrap();
+    io::stderr().flush().unwrap();
+    set_console_color(colorize, handle, CC::Reset);
+}
+
+fn get_stream_handle(stream: Stream) -> HANDLE {
+    let raw_stream = match stream {
+        Stream::Stdout => winbase::STD_OUTPUT_HANDLE,
+        Stream::Stderr => winbase::STD_ERROR_HANDLE,
+    };
+    unsafe { processenv::GetStdHandle(raw_stream) }
+}
+
+fn set_console_color(colorize: bool, stream: HANDLE, color: CC) {
+    let color = Some(color).filter(|_| colorize);
+    match color {
+        Some(CC::Cyan) => set_console_color_impl(stream, RAW_CYAN),
+        Some(CC::Red) => set_console_color_impl(stream, RAW_RED),
+        Some(CC::Green) => set_console_color_impl(stream, RAW_GREEN),
+        Some(CC::LightGreen) => set_console_color_impl(stream, RAW_LIGHT_GREEN),
+        Some(CC::LightMagenta) => set_console_color_impl(stream, RAW_LIGHT_MAGENTA),
+        Some(CC::Yellow) => set_console_color_impl(stream, RAW_YELLOW),
+        Some(CC::LightBlue) => set_console_color_impl(stream, RAW_LIGHT_BLUE),
+        Some(CC::Reset) => set_console_color_impl(stream, RAW_RESET),
+        None => {}
+    }
+}
+
+fn set_console_color_impl(handle: HANDLE, color: WORD) {
+    unsafe {
+        wincon::SetConsoleTextAttribute(handle, color);
+    }
+}
