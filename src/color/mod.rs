@@ -25,12 +25,6 @@ pub enum ConsoleColor {
     Reset,
 }
 
-#[derive(Debug, Copy, Clone)]
-pub enum Stream {
-    Stdout,
-    Stderr,
-}
-
 #[macro_export]
 macro_rules! common_colored_print_impl {
     ($colorize:expr, $stream:expr, $color:expr, $fmt:expr $(,$args:expr)*) => (
@@ -59,31 +53,32 @@ macro_rules! common_colored_println {
 #[macro_export]
 macro_rules! colored_print {
     ($colorize:expr; $($color:expr, $fmt:expr $(,$args:expr)*;)+) => (
-        common_colored_print!($colorize, $crate::color::Stream::Stdout; $($color, $fmt $(,$args)*;)*);
+        common_colored_print!($colorize, $crate::Stream::Stdout; $($color, $fmt $(,$args)*;)*);
     )
 }
 
 #[macro_export]
 macro_rules! colored_println {
     ($colorize:expr; $($color:expr, $fmt:expr $(,$args:expr)*;)+) => (
-        common_colored_println!($colorize, $crate::color::Stream::Stdout; $($color, $fmt $(,$args)*;)*);
+        common_colored_println!($colorize, $crate::Stream::Stdout; $($color, $fmt $(,$args)*;)*);
     )
 }
 
 #[macro_export]
 macro_rules! ecolored_print {
     ($colorize:expr; $($color:expr, $fmt:expr $(,$args:expr)*;)+) => (
-        common_colored_print!($colorize, $crate::color::Stream::Stderr; $($color, $fmt $(,$args)*;)*);
+        common_colored_print!($colorize, $crate::Stream::Stderr; $($color, $fmt $(,$args)*;)*);
     )
 }
 
 #[macro_export]
 macro_rules! ecolored_println {
     ($colorize:expr; $($color:expr, $fmt:expr $(,$args:expr)*;)+) => (
-        common_colored_println!($colorize, $crate::color::Stream::Stderr; $($color, $fmt $(,$args)*;)*);
+        common_colored_println!($colorize, $crate::Stream::Stderr; $($color, $fmt $(,$args)*;)*);
     )
 }
 
+use Stream;
 pub fn print<S: AsRef<str>>(colorize: bool, stream: Stream, color: ConsoleColor, body: S) {
     #[cfg(unix)]
     ::color::color_unix::print(colorize, stream, color, body.as_ref());

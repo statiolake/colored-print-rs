@@ -7,11 +7,17 @@ extern crate winapi;
 #[macro_use]
 pub mod color;
 
+#[derive(Debug, Copy, Clone)]
+pub enum Stream {
+    Stdout,
+    Stderr,
+}
+
 #[cfg(test)]
 #[allow(unused_imports)]
 mod tests {
-    use color;
-    use color::{ConsoleColor as CC, Stream};
+    use color::ConsoleColor as CC;
+    use Stream;
     #[test]
     fn it_works() {
         colored_println! {

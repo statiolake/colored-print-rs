@@ -5,7 +5,8 @@ use winapi::um::{processenv, winbase, wincon};
 use std::io;
 use std::io::prelude::*;
 
-use super::{ConsoleColor as CC, Stream};
+use super::ConsoleColor as CC;
+use Stream;
 
 const RAW_CYAN: WORD = wincon::FOREGROUND_BLUE | wincon::FOREGROUND_GREEN;
 const RAW_RED: WORD = wincon::FOREGROUND_RED;
