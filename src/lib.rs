@@ -27,7 +27,7 @@ mod tests {
             CC::Yellow, "stdout";
         }
 
-        ecolored_println! {
+        colored_eprintln! {
             true;
             CC::LightBlue, "Hello, ";
             CC::LightGreen, "this is ";

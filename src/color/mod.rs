@@ -65,14 +65,14 @@ macro_rules! colored_println {
 }
 
 #[macro_export]
-macro_rules! ecolored_print {
+macro_rules! colored_eprint {
     ($colorize:expr; $($color:expr, $fmt:expr $(,$args:expr)*;)+) => (
         common_colored_print!($colorize, $crate::Stream::Stderr; $($color, $fmt $(,$args)*;)*);
     )
 }
 
 #[macro_export]
-macro_rules! ecolored_println {
+macro_rules! colored_eprintln {
     ($colorize:expr; $($color:expr, $fmt:expr $(,$args:expr)*;)+) => (
         common_colored_println!($colorize, $crate::Stream::Stderr; $($color, $fmt $(,$args)*;)*);
     )
