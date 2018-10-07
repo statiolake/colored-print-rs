@@ -1,11 +1,10 @@
-#![macro_use]
 use kernel32;
+use winapi::shared::minwindef::{DWORD, WORD};
+use winapi::um::{winbase, wincon};
+
 use std::fmt;
 use std::io;
 use std::io::prelude::*;
-use winapi;
-use winapi::minwindef::{DWORD, WORD};
-use winapi::wincon;
 
 use super::ConsoleColor as CC;
 
@@ -34,7 +33,7 @@ impl fmt::Display for ConsoleAttribute {
         io::stdout().flush().unwrap();
         io::stderr().flush().unwrap();
         unsafe {
-            let handle = kernel32::GetStdHandle(winapi::winbase::STD_OUTPUT_HANDLE);
+            let handle = kernel32::GetStdHandle(winbase::STD_OUTPUT_HANDLE);
             match *self {
                 ConsoleAttribute::Attr(attr) => {
                     kernel32::SetConsoleTextAttribute(handle, attr as WORD);
@@ -48,22 +47,21 @@ impl fmt::Display for ConsoleAttribute {
     }
 }
 
-const RAW_CYAN: DWORD = wincon::FOREGROUND_BLUE | wincon::FOREGROUND_GREEN;
-const RAW_RED: DWORD = wincon::FOREGROUND_RED;
-const RAW_GREEN: DWORD = wincon::FOREGROUND_GREEN;
-const RAW_LIGHT_GREEN: DWORD = wincon::FOREGROUND_GREEN | wincon::FOREGROUND_INTENSITY;
-const RAW_LIGHT_MAGENTA: DWORD =
+const RAW_CYAN: WORD = wincon::FOREGROUND_BLUE | wincon::FOREGROUND_GREEN;
+const RAW_RED: WORD = wincon::FOREGROUND_RED;
+const RAW_GREEN: WORD = wincon::FOREGROUND_GREEN;
+const RAW_LIGHT_GREEN: WORD = wincon::FOREGROUND_GREEN | wincon::FOREGROUND_INTENSITY;
+const RAW_LIGHT_MAGENTA: WORD =
     wincon::FOREGROUND_BLUE | wincon::FOREGROUND_RED | wincon::FOREGROUND_INTENSITY;
-const RAW_YELLOW: DWORD = wincon::FOREGROUND_GREEN | wincon::FOREGROUND_RED;
-const RAW_LIGHT_BLUE: DWORD = wincon::FOREGROUND_BLUE | wincon::FOREGROUND_INTENSITY;
-const RAW_RESET: DWORD =
-    wincon::FOREGROUND_GREEN | wincon::FOREGROUND_BLUE | wincon::FOREGROUND_RED;
+const RAW_YELLOW: WORD = wincon::FOREGROUND_GREEN | wincon::FOREGROUND_RED;
+const RAW_LIGHT_BLUE: WORD = wincon::FOREGROUND_BLUE | wincon::FOREGROUND_INTENSITY;
+const RAW_RESET: WORD = wincon::FOREGROUND_GREEN | wincon::FOREGROUND_BLUE | wincon::FOREGROUND_RED;
 
-const CYAN: ConsoleAttribute = ConsoleAttribute::Attr(RAW_CYAN);
-const RED: ConsoleAttribute = ConsoleAttribute::Attr(RAW_RED);
-const GREEN: ConsoleAttribute = ConsoleAttribute::Attr(RAW_GREEN);
-const LIGHT_GREEN: ConsoleAttribute = ConsoleAttribute::Attr(RAW_LIGHT_GREEN);
-const LIGHT_MAGENTA: ConsoleAttribute = ConsoleAttribute::Attr(RAW_LIGHT_MAGENTA);
-const YELLOW: ConsoleAttribute = ConsoleAttribute::Attr(RAW_YELLOW);
-const LIGHT_BLUE: ConsoleAttribute = ConsoleAttribute::Attr(RAW_LIGHT_BLUE);
+const CYAN: ConsoleAttribute = ConsoleAttribute::Attr(RAW_CYAN as DWORD);
+const RED: ConsoleAttribute = ConsoleAttribute::Attr(RAW_RED as DWORD);
+const GREEN: ConsoleAttribute = ConsoleAttribute::Attr(RAW_GREEN as DWORD);
+const LIGHT_GREEN: ConsoleAttribute = ConsoleAttribute::Attr(RAW_LIGHT_GREEN as DWORD);
+const LIGHT_MAGENTA: ConsoleAttribute = ConsoleAttribute::Attr(RAW_LIGHT_MAGENTA as DWORD);
+const YELLOW: ConsoleAttribute = ConsoleAttribute::Attr(RAW_YELLOW as DWORD);
+const LIGHT_BLUE: ConsoleAttribute = ConsoleAttribute::Attr(RAW_LIGHT_BLUE as DWORD);
 const RESET: ConsoleAttribute = ConsoleAttribute::Reset;
