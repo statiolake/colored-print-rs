@@ -1,6 +1,6 @@
 [package]
 name = "colored_print"
-version = "0.1.2"
+version = "0.2.0"
 authors = ["statiolake <statiolake@gmail.com>"]
 
 [target."cfg(unix)".dependencies]
