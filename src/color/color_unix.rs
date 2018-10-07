@@ -1,23 +1,9 @@
-use std::fmt;
+use std::io;
+use std::io::Write;
 
-use super::ConsoleColor as CC;
+use super::{ConsoleColor as CC, Stream};
 use termion::color as cl;
 use termion::color::Fg;
-
-impl fmt::Display for CC {
-    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        match *self {
-            CC::Cyan => write!(f, "{}", CYAN),
-            CC::Red => write!(f, "{}", RED),
-            CC::Green => write!(f, "{}", GREEN),
-            CC::LightGreen => write!(f, "{}", LIGHT_GREEN),
-            CC::LightMagenta => write!(f, "{}", LIGHT_MAGENTA),
-            CC::Yellow => write!(f, "{}", YELLOW),
-            CC::LightBlue => write!(f, "{}", LIGHT_BLUE),
-            CC::Reset => write!(f, "{}", RESET),
-        }
-    }
-}
 
 const CYAN: Fg<cl::Cyan> = Fg(cl::Cyan);
 const RED: Fg<cl::Red> = Fg(cl::Red);
@@ -27,3 +13,31 @@ const LIGHT_MAGENTA: Fg<cl::LightMagenta> = Fg(cl::LightMagenta);
 const YELLOW: Fg<cl::Yellow> = Fg(cl::Yellow);
 const LIGHT_BLUE: Fg<cl::LightBlue> = Fg(cl::LightBlue);
 const RESET: Fg<cl::Reset> = Fg(cl::Reset);
+
+pub fn print(colorize: bool, stream: Stream, color: CC, body: &str) {
+    match stream {
+        Stream::Stdout => print_impl(colorize, &mut io::stdout(), color, body),
+        Stream::Stderr => print_impl(colorize, &mut io::stderr(), color, body),
+    }
+}
+
+fn print_impl<W: Write>(colorize: bool, stream: &mut W, color: CC, body: &str) {
+    print_color_sequence(colorize, stream, color);
+    write!(stream, "{}", body);
+    print_color_sequence(colorize, stream, CC::Reset);
+}
+
+fn print_color_sequence<W: Write>(colorize: bool, stream: &mut W, color: CC) {
+    let color = Some(color).filter(|_| colorize);
+    match color {
+        Some(CC::Cyan) => write!(stream, "{}", CYAN).unwrap(),
+        Some(CC::Red) => write!(stream, "{}", RED).unwrap(),
+        Some(CC::Green) => write!(stream, "{}", GREEN).unwrap(),
+        Some(CC::LightGreen) => write!(stream, "{}", LIGHT_GREEN).unwrap(),
+        Some(CC::LightMagenta) => write!(stream, "{}", LIGHT_MAGENTA).unwrap(),
+        Some(CC::Yellow) => write!(stream, "{}", YELLOW).unwrap(),
+        Some(CC::LightBlue) => write!(stream, "{}", LIGHT_BLUE).unwrap(),
+        Some(CC::Reset) => write!(stream, "{}", RESET).unwrap(),
+        None => {}
+    }
+}
