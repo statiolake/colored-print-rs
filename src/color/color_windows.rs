@@ -8,15 +8,47 @@ use std::io::prelude::*;
 use super::ConsoleColor as CC;
 use Stream;
 
-const RAW_CYAN: WORD = wincon::FOREGROUND_BLUE | wincon::FOREGROUND_GREEN;
-const RAW_RED: WORD = wincon::FOREGROUND_RED;
-const RAW_GREEN: WORD = wincon::FOREGROUND_GREEN;
-const RAW_LIGHT_GREEN: WORD = wincon::FOREGROUND_GREEN | wincon::FOREGROUND_INTENSITY;
-const RAW_LIGHT_MAGENTA: WORD =
-    wincon::FOREGROUND_BLUE | wincon::FOREGROUND_RED | wincon::FOREGROUND_INTENSITY;
-const RAW_YELLOW: WORD = wincon::FOREGROUND_GREEN | wincon::FOREGROUND_RED;
-const RAW_LIGHT_BLUE: WORD = wincon::FOREGROUND_BLUE | wincon::FOREGROUND_INTENSITY;
-const RAW_RESET: WORD = wincon::FOREGROUND_GREEN | wincon::FOREGROUND_BLUE | wincon::FOREGROUND_RED;
+fn raw_fg_color(red: bool, green: bool, blue: bool, int: bool) -> WORD {
+    let red = if red { wincon::FOREGROUND_RED } else { 0 };
+    let green = if green { wincon::FOREGROUND_GREEN } else { 0 };
+    let blue = if blue { wincon::FOREGROUND_BLUE } else { 0 };
+    let int = if int { wincon::FOREGROUND_INTENSITY } else { 0 };
+
+    red | green | blue | int
+}
+
+fn fg_cyan() -> WORD {
+    raw_fg_color(false, true, true, false)
+}
+
+fn fg_red() -> WORD {
+    raw_fg_color(true, false, false, false)
+}
+
+fn fg_green() -> WORD {
+    raw_fg_color(false, true, false, false)
+}
+
+fn fg_light_green() -> WORD {
+    raw_fg_color(false, true, false, true)
+}
+
+fn fg_light_magenta() -> WORD {
+    raw_fg_color(true, false, true, true)
+}
+
+fn fg_yellow() -> WORD {
+    raw_fg_color(true, true, false, false)
+}
+
+fn fg_light_blue() -> WORD {
+    raw_fg_color(false, false, true, true)
+}
+
+fn fg_reset() -> WORD {
+    // temporary implementation
+    raw_fg_color(true, true, true, true)
+}
 
 pub fn print(colorize: bool, stream: Stream, color: CC, body: &str) {
     io::stdout().flush().unwrap();
@@ -43,14 +75,14 @@ fn get_stream_handle(stream: Stream) -> HANDLE {
 fn set_console_color(colorize: bool, stream: HANDLE, color: CC) {
     let color = Some(color).filter(|_| colorize);
     match color {
-        Some(CC::Cyan) => set_console_color_impl(stream, RAW_CYAN),
-        Some(CC::Red) => set_console_color_impl(stream, RAW_RED),
-        Some(CC::Green) => set_console_color_impl(stream, RAW_GREEN),
-        Some(CC::LightGreen) => set_console_color_impl(stream, RAW_LIGHT_GREEN),
-        Some(CC::LightMagenta) => set_console_color_impl(stream, RAW_LIGHT_MAGENTA),
-        Some(CC::Yellow) => set_console_color_impl(stream, RAW_YELLOW),
-        Some(CC::LightBlue) => set_console_color_impl(stream, RAW_LIGHT_BLUE),
-        Some(CC::Reset) => set_console_color_impl(stream, RAW_RESET),
+        Some(CC::Cyan) => set_console_color_impl(stream, fg_cyan()),
+        Some(CC::Red) => set_console_color_impl(stream, fg_red()),
+        Some(CC::Green) => set_console_color_impl(stream, fg_green()),
+        Some(CC::LightGreen) => set_console_color_impl(stream, fg_light_green()),
+        Some(CC::LightMagenta) => set_console_color_impl(stream, fg_light_magenta()),
+        Some(CC::Yellow) => set_console_color_impl(stream, fg_yellow()),
+        Some(CC::LightBlue) => set_console_color_impl(stream, fg_light_blue()),
+        Some(CC::Reset) => set_console_color_impl(stream, fg_reset()),
         None => {}
     }
 }
