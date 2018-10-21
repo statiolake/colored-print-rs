@@ -5,6 +5,9 @@ extern crate termion;
 #[cfg(windows)]
 extern crate winapi;
 #[macro_use]
+extern crate lazy_static;
+
+#[macro_use]
 pub mod color;
 
 #[derive(Debug, Copy, Clone)]
