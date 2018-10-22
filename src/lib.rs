@@ -4,6 +4,7 @@ extern crate kernel32;
 extern crate termion;
 #[cfg(windows)]
 extern crate winapi;
+#[cfg(windows)]
 #[macro_use]
 extern crate lazy_static;
 
