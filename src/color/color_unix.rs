@@ -2,9 +2,9 @@ use std::io;
 use std::io::Write;
 
 use super::ConsoleColor as CC;
+use crate::Stream;
 use termion::color as cl;
 use termion::color::Fg;
-use Stream;
 
 const CYAN: Fg<cl::Cyan> = Fg(cl::Cyan);
 const RED: Fg<cl::Red> = Fg(cl::Red);
