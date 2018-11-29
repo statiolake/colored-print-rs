@@ -1,3 +1,4 @@
+use lazy_static::lazy_static;
 use winapi::shared::minwindef::WORD;
 use winapi::um::winnt::HANDLE;
 use winapi::um::{processenv, winbase, wincon};
@@ -7,7 +8,7 @@ use std::io::prelude::*;
 use std::mem;
 
 use super::ConsoleColor as CC;
-use Stream;
+use crate::Stream;
 
 lazy_static! {
     static ref STDOUT_DEFAULT_ATTRIBUTE: WORD = get_attributes_for(Stream::Stdout);
@@ -44,11 +45,9 @@ fn raw_fg_color(red: bool, green: bool, blue: bool, int: bool) -> WORD {
 }
 
 fn bg_default(stream: Stream) -> WORD {
-    unsafe {
-        match stream {
-            Stream::Stdout => *STDOUT_DEFAULT_BACKGROUND_ATTRIBUTE,
-            Stream::Stderr => *STDERR_DEFAULT_BACKGROUND_ATTRIBUTE,
-        }
+    match stream {
+        Stream::Stdout => *STDOUT_DEFAULT_BACKGROUND_ATTRIBUTE,
+        Stream::Stderr => *STDERR_DEFAULT_BACKGROUND_ATTRIBUTE,
     }
 }
 
@@ -87,13 +86,13 @@ fn fg_reset(stream: Stream) -> WORD {
     }
 }
 
-pub fn print(colorize: bool, stream: Stream, color: CC, body: &str) {
+pub fn print<S: AsRef<str>>(colorize: bool, stream: Stream, color: CC, body: S) {
     io::stdout().flush().unwrap();
     io::stderr().flush().unwrap();
     set_console_color(colorize, stream, color);
     match stream {
-        Stream::Stdout => write!(io::stdout(), "{}", body).unwrap(),
-        Stream::Stderr => write!(io::stderr(), "{}", body).unwrap(),
+        Stream::Stdout => write!(io::stdout(), "{}", body.as_ref()).unwrap(),
+        Stream::Stderr => write!(io::stderr(), "{}", body.as_ref()).unwrap(),
     }
     io::stdout().flush().unwrap();
     io::stderr().flush().unwrap();

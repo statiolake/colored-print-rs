@@ -2,9 +2,9 @@ use std::io;
 use std::io::Write;
 
 use super::ConsoleColor as CC;
+use crate::Stream;
 use termion::color as cl;
 use termion::color::Fg;
-use Stream;
 
 const CYAN: Fg<cl::Cyan> = Fg(cl::Cyan);
 const RED: Fg<cl::Red> = Fg(cl::Red);
@@ -15,10 +15,10 @@ const YELLOW: Fg<cl::Yellow> = Fg(cl::Yellow);
 const LIGHT_BLUE: Fg<cl::LightBlue> = Fg(cl::LightBlue);
 const RESET: Fg<cl::Reset> = Fg(cl::Reset);
 
-pub fn print(colorize: bool, stream: Stream, color: CC, body: &str) {
+pub fn print<S: AsRef<str>>(colorize: bool, stream: Stream, color: CC, body: S) {
     match stream {
-        Stream::Stdout => print_impl(colorize, &mut io::stdout(), color, body),
-        Stream::Stderr => print_impl(colorize, &mut io::stderr(), color, body),
+        Stream::Stdout => print_impl(colorize, &mut io::stdout(), color, body.as_ref()),
+        Stream::Stderr => print_impl(colorize, &mut io::stderr(), color, body.as_ref()),
     }
 }
 

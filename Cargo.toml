@@ -1,7 +1,8 @@
 [package]
 name = "colored_print"
-version = "0.3.0"
+version = "0.4.2"
 authors = ["statiolake <statiolake@gmail.com>"]
+edition = "2018"
 
 [target."cfg(unix)".dependencies]
 termion = "1.5.1"
@@ -11,4 +12,4 @@ kernel32-sys = "0.2.2"
 winapi = { version = "0.3.6", features = ["minwindef", "winbase", "wincon", "winnt", "processenv"] }
 
 [dependencies]
-lazy_static = "1.1.0"
+lazy_static = "1.2.0"
