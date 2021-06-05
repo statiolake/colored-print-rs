@@ -1,100 +1,101 @@
-pub mod color;
+pub use termcolor::Color;
 
-#[macro_export]
-macro_rules! common_colored_print_impl {
-    ($colorize:expr, $stream:expr, $color:expr, $fmt:expr $(,$args:expr)*) => {
-        $crate::color::print($colorize, $stream, $color, format!($fmt $(,$args)*));
-    };
+use once_cell::sync::Lazy;
+use std::fmt;
+use std::sync::Mutex;
+use termcolor::{ColorChoice, StandardStream};
+
+static STDOUT: Lazy<Mutex<StandardStream>> =
+    Lazy::new(|| Mutex::new(StandardStream::stdout(ColorChoice::Auto)));
+static STDERR: Lazy<Mutex<StandardStream>> =
+    Lazy::new(|| Mutex::new(StandardStream::stderr(ColorChoice::Auto)));
+
+#[derive(Debug)]
+pub struct Colored<T> {
+    value: T,
+    fg: Option<Color>,
+    bg: Option<Color>,
+}
+
+impl<T> Colored<T> {
+    pub fn plain(value: T) -> Colored<T> {
+        Colored {
+            value,
+            fg: None,
+            bg: None,
+        }
+    }
+
+    pub fn fg(self, color: Option<Color>) -> Colored<T> {
+        Colored { fg: color, ..self }
+    }
+
+    pub fn bg(self, color: Option<Color>) -> Colored<T> {
+        Colored { bg: color, ..self }
+    }
+
+    pub fn cleared(self) -> Colored<T> {
+        Colored {
+            fg: None,
+            bg: None,
+            ..self
+        }
+    }
+}
+
+trait GetColored<T> {
+    fn value(&self) -> &T;
+    fn fg(&self) -> Option<Color>;
+    fn bg(&self) -> Option<Color>;
+}
+
+// autoref based specializiation
+// see also: https://github.com/dtolnay/case-studies/blob/master/autoref-specialization/README.md
+impl<T> GetColored<T> for &T {
+    fn value(&self) -> &T {
+        &self
+    }
+
+    fn fg(&self) -> Option<Color> {
+        None
+    }
+
+    fn bg(&self) -> Option<Color> {
+        None
+    }
+}
+
+impl<T> GetColored<T> for Colored<T> {
+    fn value(&self) -> &T {
+        &self.value
+    }
+
+    fn fg(&self) -> Option<Color> {
+        self.fg
+    }
+
+    fn bg(&self) -> Option<Color> {
+        self.bg
+    }
 }
 
 #[macro_export]
-macro_rules! common_colored_print {
-    ($colorize:expr, $stream:expr; $($color:expr, $fmt:expr $(,$args:expr)*;)+) => {
-        $(
-            $crate::common_colored_print_impl!($colorize, $stream, $color, $fmt $(,$args)*);
-        )*
-        $crate::color::print($colorize, $stream, $crate::color::ConsoleColor::Reset, "");
-    };
-}
-
-#[macro_export]
-macro_rules! common_colored_println {
-    ($colorize:expr, $stream:expr; $($color:expr, $fmt:expr $(,$args:expr)*;)+) => {
-        $crate::common_colored_print!($colorize, $stream; $($color, $fmt $(,$args)*;)*);
-        $crate::color::print($colorize, $stream, $crate::color::ConsoleColor::Reset, "\n");
+macro_rules! colored_write {
+    ($out:expr, $fmt:literal $($args:expr),*$(,)?) => {
+        let out = $out;
     };
 }
 
 #[macro_export]
 macro_rules! colored_print {
-    ($colorize:expr; $($color:expr, $fmt:expr $(,$args:expr)*;)+) => {
-        $crate::common_colored_print!($colorize, $crate::Stream::Stdout; $($color, $fmt $(,$args)*;)*);
+    ($fmt:literal $($args:tt)*) => {
+        $crate::colored_write!(STDOUT.lock(), $fmt $($args)*);
     };
 }
 
 #[macro_export]
 macro_rules! colored_println {
-    ($colorize:expr; $($color:expr, $fmt:expr $(,$args:expr)*;)+) => {
-        $crate::common_colored_println!($colorize, $crate::Stream::Stdout; $($color, $fmt $(,$args)*;)*);
+    ($fmt:literal $($args:tt)*) => {
+        $crate::colored_print!(concat!($fmt, "\n"), $($args)*);
     };
-}
-
-#[macro_export]
-macro_rules! colored_eprint {
-    ($colorize:expr; $($color:expr, $fmt:expr $(,$args:expr)*;)+) => {
-        $crate::common_colored_print!($colorize, $crate::Stream::Stderr; $($color, $fmt $(,$args)*;)*);
-    };
-}
-
-#[macro_export]
-macro_rules! colored_eprintln {
-    ($colorize:expr; $($color:expr, $fmt:expr $(,$args:expr)*;)+) => {
-        $crate::common_colored_println!($colorize, $crate::Stream::Stderr; $($color, $fmt $(,$args)*;)*);
-    };
-}
-
-#[derive(Debug, Copy, Clone)]
-pub enum Stream {
-    Stdout,
-    Stderr,
-}
-
-#[cfg(test)]
-#[allow(unused_imports)]
-mod tests {
-    use crate::color::ConsoleColor as CC;
-    use crate::Stream;
-    use crate::{colored_eprintln, colored_println};
-    #[test]
-    fn it_works() {
-        colored_println! {
-            true;
-            CC::LightBlue, "Hello, ";
-            CC::LightGreen, "this is ";
-            CC::Yellow, "stdout";
-        }
-
-        colored_eprintln! {
-            true;
-            CC::LightBlue, "Hello, ";
-            CC::LightGreen, "this is ";
-            CC::Yellow, "stderr";
-        }
-
-        common_colored_println! {
-            true, Stream::Stdout;
-            CC::LightBlue, "Hello, ";
-            CC::LightGreen, "this is ";
-            CC::Red, "alternative ";
-            CC::Yellow, "stdout";
-        }
-
-        common_colored_println! {
-            true, Stream::Stderr;
-            CC::LightBlue, "Hello, ";
-            CC::LightGreen, "this is ";
-            CC::Red, "alternative ";
-            CC::Yellow, "stderr";
-        }
-    }
 }
